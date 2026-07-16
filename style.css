@@ -5016,6 +5016,8 @@ body.main-nav-visible #bottomBar{
     object-fit:contain;   /* Shows complete image */
     display:block;
     background:transparent;
+    border-radius: 10px;
+
 }
 
 /* White background for name & price */
