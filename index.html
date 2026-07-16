@@ -1092,43 +1092,216 @@
     </div>
 </section>
 
+
+<!-- =========================================================
+     HELP PAGE
+========================================================= -->
 <section id="helpPage" class="page">
+
     <div class="help-header green-support-header">
-        <button class="app-back" onclick="openPage('bookingsPage')" aria-label="Back"><span></span></button>
-        <h2><span class="brand-inline">Scrub Mate</span> Support</h2>
+
+        <button
+            type="button"
+            class="app-back"
+            onclick="openPage('bookingsPage')"
+            aria-label="Back"
+        >
+            <span></span>
+        </button>
+
+        <h2>
+            <span class="brand-inline">Scrub Mate</span>
+            Support
+        </h2>
+
     </div>
 
     <div class="help-body">
+
         <div class="support-card">
+
             <h3>Need help with your booking?</h3>
-            <p>Chat with ScrubMate support for bookings, payments, refunds, and service issues.</p>
-            <button class="chat-btn" onclick="openPage('chatPage')">💬 Chat with us</button>
+
+            <p>
+                Ask the ScrubMate assistant about bookings,
+                payments, refunds, cancellations, locations
+                and service problems.
+            </p>
+
+<button
+    type="button"
+    class="chat-btn"
+    onclick="openPage('chatPage')"
+>
+    💬 Chat with AI Assistant
+</button>
+
         </div>
 
         <div class="rate-box">
+
             <h3>Rate my assistance</h3>
+
             <div class="rate-icons">
-                <button onclick="alert('Thank you for liking our support!')">👍</button>
-                <button onclick="alert('Sorry, we will improve our support.')">👎</button>
+
+                <button
+                    type="button"
+                    onclick="rateScrubMateSupport('like')"
+                    aria-label="Like support"
+                >
+                    👍
+                </button>
+
+                <button
+                    type="button"
+                    onclick="rateScrubMateSupport('dislike')"
+                    aria-label="Dislike support"
+                >
+                    👎
+                </button>
+
             </div>
+
+            <p
+                class="support-rating-message"
+                id="supportRatingMessage"
+            ></p>
+
         </div>
+
     </div>
+
 </section>
 
+
+<!-- =========================================================
+     SCRUBMATE AI CHAT PAGE
+========================================================= -->
 <section id="chatPage" class="page">
+
     <div class="chat-header green-support-header">
-        <button class="app-back" onclick="openPage('helpPage')" aria-label="Back"><span></span></button>
-        <h2>Chat with us</h2>
+
+        <button
+            type="button"
+            class="app-back"
+            onclick="openPage('helpPage')"
+            aria-label="Back"
+        >
+            <span></span>
+        </button>
+
+        <div class="chat-header-details">
+
+            <h2>ScrubMate Assistant</h2>
+
+            <div class="chat-status">
+                <span class="chat-online-dot"></span>
+                Online
+            </div>
+
+        </div>
+
+        <button
+            type="button"
+            class="clear-support-chat"
+            onclick="clearScrubMateChat()"
+            aria-label="Clear chat"
+        >
+            ↻
+        </button>
+
     </div>
 
     <div class="chat-body" id="chatBody">
-        <div class="msg bot">Hi! I am ScrubMate Support. Tell me your problem.</div>
+
+        <div class="msg bot">
+
+            <div class="bot-message-name">
+                ScrubMate Assistant
+            </div>
+
+            <div>
+                Hello! 👋 I am your ScrubMate support assistant.
+                How can I help you today?
+            </div>
+
+        </div>
+
+        <div
+            class="chat-quick-actions"
+            id="chatQuickActions"
+        >
+
+            <button
+                type="button"
+                onclick="sendQuickChatMessage('How do I book a service?')"
+            >
+                How to book?
+            </button>
+
+            <button
+                type="button"
+                onclick="sendQuickChatMessage('How can I cancel my booking?')"
+            >
+                Cancel booking
+            </button>
+
+            <button
+                type="button"
+                onclick="sendQuickChatMessage('Tell me about the ₹50 advance payment')"
+            >
+                ₹50 payment
+            </button>
+
+            <button
+                type="button"
+                onclick="sendQuickChatMessage('How can I get a refund?')"
+            >
+                Refund
+            </button>
+
+            <button
+                type="button"
+                onclick="sendQuickChatMessage('What is my booking status?')"
+            >
+                Booking status
+            </button>
+
+            <button
+                type="button"
+                onclick="sendQuickChatMessage('What is my saved location?')"
+            >
+                Saved location
+            </button>
+
+        </div>
+
     </div>
 
-    <div class="chat-input">
-        <input type="text" id="chatInput" placeholder="Type your problem..." onkeydown="if(event.key==='Enter')sendMessage()">
-        <button onclick="sendMessage()">Send</button>
-    </div>
+    <form
+        class="chat-input"
+        id="scrubMateChatForm"
+        onsubmit="sendMessage(event)"
+    >
+
+        <input
+            type="text"
+            id="chatInput"
+            placeholder="Ask about booking, payment or refund..."
+            autocomplete="off"
+            maxlength="300"
+        >
+
+        <button
+            type="submit"
+            id="chatSendButton"
+            aria-label="Send message"
+        >
+            ➤
+        </button>
+
+    </form>
+
 </section>
 
 <section id="profilePage" class="page profile-page guest-profile-page">
