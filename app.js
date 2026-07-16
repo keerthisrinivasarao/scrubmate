@@ -709,3 +709,580 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }, 3500);
 });
+/* ==========================================================
+   SCRUBMATE AI SUPPORT CHATBOT
+========================================================== */
+
+(function () {
+    "use strict";
+
+    const CHAT_STORAGE_KEY = "scrubmateSupportChatHistory";
+
+    function getChatElement(id) {
+        return document.getElementById(id);
+    }
+
+    function getCurrentChatTime() {
+        return new Date().toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
+
+    function scrollChatToBottom() {
+        const chatBody = getChatElement("chatBody");
+
+        if (chatBody) {
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+    }
+
+    function saveChatHistory() {
+        const chatBody = getChatElement("chatBody");
+
+        if (!chatBody) {
+            return;
+        }
+
+        localStorage.setItem(
+            CHAT_STORAGE_KEY,
+            chatBody.innerHTML
+        );
+    }
+
+    function addChatMessage(message, sender) {
+        const chatBody = getChatElement("chatBody");
+
+        if (!chatBody) {
+            console.error("chatBody element is missing.");
+            return;
+        }
+
+        const messageBox = document.createElement("div");
+
+        messageBox.className = "msg " + sender;
+
+        if (sender === "bot") {
+            const botName = document.createElement("div");
+
+            botName.className = "bot-message-name";
+            botName.textContent = "ScrubMate Assistant";
+
+            messageBox.appendChild(botName);
+        }
+
+        const messageText = document.createElement("div");
+
+        messageText.textContent = message;
+        messageBox.appendChild(messageText);
+
+        const messageTime = document.createElement("span");
+
+        messageTime.className = "chat-message-time";
+        messageTime.textContent = getCurrentChatTime();
+
+        messageBox.appendChild(messageTime);
+        chatBody.appendChild(messageBox);
+
+        scrollChatToBottom();
+        saveChatHistory();
+    }
+
+    function showChatTyping() {
+        const chatBody = getChatElement("chatBody");
+
+        if (!chatBody) {
+            return;
+        }
+
+        const oldTyping =
+            getChatElement("scrubMateTypingIndicator");
+
+        if (oldTyping) {
+            oldTyping.remove();
+        }
+
+        const typingBox = document.createElement("div");
+
+        typingBox.id = "scrubMateTypingIndicator";
+        typingBox.className = "msg bot chat-typing";
+
+        typingBox.innerHTML =
+            "<span></span>" +
+            "<span></span>" +
+            "<span></span>";
+
+        chatBody.appendChild(typingBox);
+
+        scrollChatToBottom();
+    }
+
+    function removeChatTyping() {
+        const typingBox =
+            getChatElement("scrubMateTypingIndicator");
+
+        if (typingBox) {
+            typingBox.remove();
+        }
+    }
+
+    function readStorageArray(key) {
+        try {
+            const value = JSON.parse(
+                localStorage.getItem(key) || "[]"
+            );
+
+            return Array.isArray(value) ? value : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function getUpcomingBookings() {
+        const upcomingBookings =
+            readStorageArray("scrubmateUpcomingBookings");
+
+        const paidBookings =
+            readStorageArray("scrubmateBookings");
+
+        return [
+            ...upcomingBookings,
+            ...paidBookings
+        ];
+    }
+
+    function getSavedLocation() {
+        return (
+            localStorage.getItem("scrubmateSelectedLocation") ||
+            localStorage.getItem("scrubmateLocation") ||
+            ""
+        );
+    }
+
+    function generateChatReply(userMessage) {
+        const message = String(userMessage || "")
+            .toLowerCase()
+            .trim();
+
+        const bookings = getUpcomingBookings();
+        const savedLocation = getSavedLocation();
+
+        if (
+            message === "hi" ||
+            message.includes("hello") ||
+            message.includes("hey")
+        ) {
+            return (
+                "Hello! 👋 How can I help you with " +
+                "your ScrubMate service today?"
+            );
+        }
+
+        if (
+            message.includes("how do i book") ||
+            message.includes("book a service") ||
+            message.includes("new booking")
+        ) {
+            return (
+                "Open the Home page and select a service. " +
+                "Enter your name, mobile number and preferred date. " +
+                "Then pay the ₹50 advance amount to confirm the booking."
+            );
+        }
+
+        if (
+            message.includes("booking status") ||
+            message.includes("my booking") ||
+            message.includes("upcoming booking")
+        ) {
+            if (bookings.length === 0) {
+                return (
+                    "You currently have no upcoming bookings. " +
+                    "Select a service from the Home page to create one."
+                );
+            }
+
+            const latestBooking = bookings[0];
+
+            const serviceName =
+                latestBooking.name ||
+                latestBooking.serviceName ||
+                "ScrubMate service";
+
+            const bookingStatus =
+                latestBooking.status ||
+                latestBooking.bookingStatus ||
+                latestBooking.paymentStatus ||
+                "Confirmed";
+
+            const bookingDate =
+                latestBooking.date ||
+                latestBooking.preferredDate ||
+                "your selected date";
+
+            return (
+                "Your latest booking is " +
+                serviceName +
+                " for " +
+                bookingDate +
+                ". Current status: " +
+                bookingStatus +
+                "."
+            );
+        }
+
+        if (message.includes("cancel")) {
+            return (
+                "Open the Bookings page and select your upcoming booking. " +
+                "Press the Cancel button. The cancelled booking will move " +
+                "to the Past tab."
+            );
+        }
+
+        if (message.includes("refund")) {
+            return (
+                "Refund eligibility depends on the booking and cancellation " +
+                "status. Keep your payment transaction ID. Approved refunds " +
+                "are returned to the original payment method."
+            );
+        }
+
+        if (
+            message.includes("₹50") ||
+            message.includes("50") ||
+            message.includes("advance")
+        ) {
+            return (
+                "ScrubMate collects a ₹50 advance payment to confirm every " +
+                "service booking. The remaining service amount is shown on " +
+                "the payment page."
+            );
+        }
+
+        if (
+            message.includes("payment failed") ||
+            message.includes("money deducted") ||
+            message.includes("amount deducted")
+        ) {
+            return (
+                "Check your bank or UPI transaction history first. " +
+                "If money was deducted but the booking is not confirmed, " +
+                "keep the transaction ID and avoid paying again immediately."
+            );
+        }
+
+        if (message.includes("payment")) {
+            return (
+                "You can pay the ₹50 advance using the available payment " +
+                "method. After successful payment, the booking will appear " +
+                "in the Bookings page."
+            );
+        }
+
+        if (
+            message.includes("location") ||
+            message.includes("address")
+        ) {
+            if (savedLocation) {
+                return (
+                    "Your saved service location is: " +
+                    savedLocation +
+                    ". You can change it using the location option " +
+                    "in the Home page header."
+                );
+            }
+
+            return (
+                "No saved location was found. Use Current Location or " +
+                "Enter Location Manually on the location page."
+            );
+        }
+
+        if (message.includes("otp")) {
+            return (
+                "Enter the six-digit OTP sent to your mobile number. " +
+                "For your current demo version, the OTP is 123456."
+            );
+        }
+
+        if (
+            message.includes("service") ||
+            message.includes("cleaning")
+        ) {
+            return (
+                "ScrubMate provides bathroom cleaning, kitchen cleaning, " +
+                "sweeping and mopping, AC service, fridge cleaning, " +
+                "window cleaning, ironing, packing and other household services."
+            );
+        }
+
+        if (
+            message.includes("price") ||
+            message.includes("cost") ||
+            message.includes("charge")
+        ) {
+            return (
+                "The price is displayed below every service card. " +
+                "Select a service card to view the full details."
+            );
+        }
+
+        if (
+            message.includes("contact") ||
+            message.includes("human") ||
+            message.includes("agent")
+        ) {
+            return (
+                "Please describe your issue with the service name, booking " +
+                "date and payment status. The ScrubMate assistant will guide you."
+            );
+        }
+
+        if (message.includes("thank")) {
+            return (
+                "You’re welcome! 😊 I’m here whenever you need help " +
+                "with ScrubMate."
+            );
+        }
+
+        return (
+            "I can help with bookings, cancellations, ₹50 advance payments, " +
+            "refunds, locations, OTP, prices and service issues. " +
+            "Please describe your problem in more detail."
+        );
+    }
+
+    window.openScrubMateChat = function () {
+        const chatPage = document.getElementById("chatPage");
+
+        if (!chatPage) {
+            console.error(
+                "chatPage section is missing from HTML."
+            );
+
+            return;
+        }
+
+        if (typeof window.openPage === "function") {
+            window.openPage("chatPage");
+        } else {
+            document
+                .querySelectorAll(".flow-screen, .page")
+                .forEach(function (page) {
+                    page.classList.remove(
+                        "flow-active",
+                        "active"
+                    );
+
+                    page.style.display = "none";
+                });
+
+            chatPage.classList.add("active");
+            chatPage.style.display = "block";
+        }
+
+        const savedChat =
+            localStorage.getItem(CHAT_STORAGE_KEY);
+
+        const chatBody =
+            getChatElement("chatBody");
+
+        if (savedChat && chatBody) {
+            chatBody.innerHTML = savedChat;
+        }
+
+        const bottomBar =
+            document.getElementById("bottomBar");
+
+        if (bottomBar) {
+            bottomBar.hidden = true;
+            bottomBar.style.display = "none";
+        }
+
+        setTimeout(function () {
+            scrollChatToBottom();
+
+            const input =
+                getChatElement("chatInput");
+
+            if (input) {
+                input.focus();
+            }
+        }, 100);
+    };
+
+    window.sendMessage = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        const chatInput =
+            getChatElement("chatInput");
+
+        const sendButton =
+            getChatElement("chatSendButton");
+
+        if (!chatInput) {
+            console.error("chatInput element is missing.");
+            return;
+        }
+
+        const userMessage =
+            chatInput.value.trim();
+
+        if (!userMessage) {
+            chatInput.focus();
+            return;
+        }
+
+        addChatMessage(
+            userMessage,
+            "user"
+        );
+
+        chatInput.value = "";
+
+        if (sendButton) {
+            sendButton.disabled = true;
+        }
+
+        showChatTyping();
+
+        setTimeout(function () {
+            removeChatTyping();
+
+            addChatMessage(
+                generateChatReply(userMessage),
+                "bot"
+            );
+
+            if (sendButton) {
+                sendButton.disabled = false;
+            }
+
+            chatInput.focus();
+        }, 700);
+    };
+
+    window.sendQuickChatMessage = function (message) {
+        const chatInput =
+            getChatElement("chatInput");
+
+        if (!chatInput) {
+            return;
+        }
+
+        chatInput.value = message;
+
+        window.sendMessage();
+    };
+
+    window.clearScrubMateChat = function () {
+        const chatBody =
+            getChatElement("chatBody");
+
+        if (!chatBody) {
+            return;
+        }
+
+        chatBody.innerHTML = `
+            <div class="msg bot">
+                <div class="bot-message-name">
+                    ScrubMate Assistant
+                </div>
+
+                <div>
+                    Hello! 👋 I am your ScrubMate support assistant.
+                    How can I help you today?
+                </div>
+            </div>
+
+            <div class="chat-quick-actions">
+
+                <button
+                    type="button"
+                    onclick="sendQuickChatMessage('How do I book a service?')"
+                >
+                    How to book?
+                </button>
+
+                <button
+                    type="button"
+                    onclick="sendQuickChatMessage('How can I cancel my booking?')"
+                >
+                    Cancel booking
+                </button>
+
+                <button
+                    type="button"
+                    onclick="sendQuickChatMessage('Tell me about the ₹50 advance payment')"
+                >
+                    ₹50 payment
+                </button>
+
+                <button
+                    type="button"
+                    onclick="sendQuickChatMessage('How can I get a refund?')"
+                >
+                    Refund
+                </button>
+
+            </div>
+        `;
+
+        localStorage.removeItem(
+            CHAT_STORAGE_KEY
+        );
+
+        scrollChatToBottom();
+    };
+
+    window.rateScrubMateSupport = function (rating) {
+        const ratingMessage =
+            getChatElement("supportRatingMessage");
+
+        if (!ratingMessage) {
+            return;
+        }
+
+        if (rating === "like") {
+            ratingMessage.textContent =
+                "Thank you for your feedback!";
+        } else {
+            ratingMessage.textContent =
+                "Thank you. We will improve the support experience.";
+        }
+    };
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+            const chatButton =
+                document.querySelector(".chat-btn");
+
+            if (chatButton) {
+                chatButton.addEventListener(
+                    "click",
+                    function (event) {
+                        event.preventDefault();
+                        window.openScrubMateChat();
+                    }
+                );
+            }
+
+            const savedChat =
+                localStorage.getItem(
+                    CHAT_STORAGE_KEY
+                );
+
+            const chatBody =
+                getChatElement("chatBody");
+
+            if (savedChat && chatBody) {
+                chatBody.innerHTML =
+                    savedChat;
+            }
+        }
+    );
+
+})();
