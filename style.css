@@ -4962,7 +4962,7 @@ body.main-nav-visible #bottomBar{
 #servicesGrid .service-card .img-box{
     position:relative;
     background:#e2f9f9;
-    border-radius:15px;
+    
     overflow:hidden;
     box-shadow:0 5px 16px rgba(0,0,0,.09);
 }
@@ -4997,7 +4997,7 @@ body.main-nav-visible #bottomBar{
 /* Service card */
 .service-card{
     background:#ffffff !important;
-    border-radius:16px;
+    
     overflow:hidden;
     box-shadow:0 5px 16px rgba(0,0,0,.08);
 }
