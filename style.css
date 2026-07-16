@@ -5004,9 +5004,9 @@ body.main-nav-visible #bottomBar{
 
 /* Sky blue background only for image */
 .service-card .img-box{
-    background:#cfefff !important;   /* Sky Blue */
+    background:#c2e5f7 !important;   /* Sky Blue */
     padding:10px;
-    border-radius:16px 16px 0 0;
+    
 }
 
 /* Image */
